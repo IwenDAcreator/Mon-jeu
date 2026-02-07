@@ -15,7 +15,7 @@ const config = {
     width: Math.min(window.innerWidth * 0.95, maxWidth),
     height: Math.min(window.innerHeight * 0.95, maxHeight),
     parent: 'game',
-    backgroundColor: 0x87CEEB, // fond bleu ciel
+    backgroundColor: 0xFFFFFF, // fond blanc autour de la zone jouable
     physics: { default: 'arcade', arcade: { debug: false } },
     scene: { preload, create, update }
 };
@@ -25,16 +25,15 @@ const game = new Phaser.Game(config);
 // Demander pseudo au lancement
 window.addEventListener('load', () => {
     pseudo = prompt("Entrez votre pseudo :") || "Joueur";
-    gameStarted = true;
+    gameStarted = false; // le jeu démarre après PLAY
 });
 
 function preload() {
-    // Images hébergées en ligne (test)
-    this.load.image('player', 'https://i.ibb.co/7bQqvTc/player.png');   // avion
-    this.load.image('missile', 'https://i.ibb.co/z7Y6K7v/missile.png'); // missile
-    this.load.image('bird', 'https://i.ibb.co/Q8bFZrK/bird.png');       // oiseau
+    // PNG depuis le dossier assets/
+    this.load.image('player', 'assets/player.png');   
+    this.load.image('missile', 'assets/missile.png'); 
+    this.load.image('bird', 'assets/bird.png');       
 }
-
 
 function create() {
     gameWidth = this.sys.game.config.width;
@@ -84,8 +83,8 @@ function create() {
     });
 
     // HUD
-    const styleLeft = { font: "28px Arial Black", fill: "#fff" };
-    const styleRight = { font: "28px Arial Black", fill: "#fff" };
+    const styleLeft = { font: "28px Arial Black", fill: "#000" };
+    const styleRight = { font: "28px Arial Black", fill: "#000" };
 
     scoreText = this.add.text(10, 10, `Score: 0`, styleLeft);
     bestScoreText = this.add.text(10, 50, `Best: ${localStorage.getItem(`bestScore_${pseudo}`) || 0}`, styleLeft);
@@ -101,7 +100,6 @@ function create() {
     });
     playButton.setOrigin(0.5);
     playButton.setInteractive();
-    playButton.visible = false;
 
     playButton.on('pointerdown', () => {
         startGame();
@@ -113,7 +111,6 @@ function create() {
 
         gameStarted = false;
 
-        // désactiver collision
         obstacles.children.iterate(obs => obs.body.enable = false);
 
         // Meilleur score
@@ -177,6 +174,9 @@ function startGame() {
         playTween.stop();
         playTween = null;
     }
+
+    // Réactiver obstacles
+    obstacles.children.iterate(obs => obs.body.enable = true);
 }
 
 function update() {
