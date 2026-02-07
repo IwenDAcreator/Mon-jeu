@@ -32,10 +32,25 @@ function preload() {
 
 function create() {
     gameWidth = this.sys.game.config.width;
+    gameHeight = this.sys.game.config.height
+
+    function create() {
+    gameWidth = this.sys.game.config.width;
     gameHeight = this.sys.game.config.height;
 
-    // Fond bleu ciel
-    this.cameras.main.setBackgroundColor('#87CEEB');
+    // Fond bleu ciel seulement pour la zone de jeu
+    const graphics = this.add.graphics();
+    graphics.fillStyle(0x87CEEB, 1); // bleu ciel
+    graphics.fillRect(0, 0, gameWidth, gameHeight);
+
+    // Joueur
+    player = this.physics.add.sprite(gameWidth / 2, gameHeight - 100, 'player');
+    player.setScale(0.6);
+    player.setCollideWorldBounds(true);
+
+    // … le reste du code reste inchangé
+}
+
 
     // Joueur
     player = this.physics.add.sprite(gameWidth / 2, gameHeight - 100, 'player');
@@ -101,4 +116,5 @@ function update() {
         }
     });
 }
+
 
