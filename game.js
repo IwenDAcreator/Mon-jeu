@@ -29,11 +29,12 @@ window.addEventListener('load', () => {
 });
 
 function preload() {
-    // PNG depuis le dossier assets/
-    this.load.image('player', 'assets/player.png');   
-    this.load.image('missile', 'assets/missile.png'); 
-    this.load.image('bird', 'assets/bird.png');       
+    // Images hébergées en ligne (test)
+    this.load.image('player', 'https://i.ibb.co/7bQqvTc/player.png');   // avion
+    this.load.image('missile', 'https://i.ibb.co/z7Y6K7v/missile.png'); // missile
+    this.load.image('bird', 'https://i.ibb.co/Q8bFZrK/bird.png');       // oiseau
 }
+
 
 function create() {
     gameWidth = this.sys.game.config.width;
