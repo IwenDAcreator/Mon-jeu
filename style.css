@@ -1,13 +1,16 @@
-body {
+
+html, body {
     margin: 0;
     padding: 0;
-    background-color: white; /* tout le reste de la page sera blanc */
+    overflow: hidden;       /* empêche le scroll */
+    background-color: white;
+    width: 100%;
+    height: 100%;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh; /* hauteur totale de la fenêtre */
+    justify-content: center; /* centre horizontalement */
+    align-items: center;     /* centre verticalement */
 }
 
 #game {
-    border: 2px solid black; /* optionnel, pour voir la zone jouable */
-}
+    display: block;
+    border: 2px solid black; /
