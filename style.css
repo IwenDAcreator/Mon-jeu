@@ -1,16 +1,13 @@
 body {
     margin: 0;
     padding: 0;
-    background: #87CEEB; /* ciel bleu */
+    background-color: white; /* tout le reste de la page sera blanc */
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    overflow: hidden;
-    touch-action: none; /* pour le tactile */
+    height: 100vh; /* hauteur totale de la fenêtre */
 }
 
 #game {
-    width: 100%;
-    height: 100%;
+    border: 2px solid black; /* optionnel, pour voir la zone jouable */
 }
