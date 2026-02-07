@@ -5,6 +5,7 @@ let gameWidth, gameHeight;
 let gameStarted = false;
 let pseudo = "";
 let playButton;
+let playTween; 
 
 const maxWidth = 480;
 const maxHeight = 640;
@@ -14,22 +15,24 @@ const config = {
     width: Math.min(window.innerWidth * 0.95, maxWidth),
     height: Math.min(window.innerHeight * 0.95, maxHeight),
     parent: 'game',
-    backgroundColor: 0x87CEEB,
+    backgroundColor: 0x87CEEB, // fond bleu ciel
     physics: { default: 'arcade', arcade: { debug: false } },
     scene: { preload, create, update }
 };
 
 const game = new Phaser.Game(config);
 
+// Demander pseudo au lancement
 window.addEventListener('load', () => {
     pseudo = prompt("Entrez votre pseudo :") || "Joueur";
     gameStarted = true;
 });
 
 function preload() {
-    this.load.image('player', 'assets/player.png');
+    // PNG depuis le dossier assets/
+    this.load.image('player', 'assets/player.png');   
     this.load.image('missile', 'assets/missile.png'); 
-    this.load.image('bird', 'assets/bird.png');
+    this.load.image('bird', 'assets/bird.png');       
 }
 
 function create() {
@@ -79,16 +82,16 @@ function create() {
         }
     });
 
-    // ---------- HUD dans la zone jouable ----------
+    // HUD
     const styleLeft = { font: "28px Arial Black", fill: "#fff" };
     const styleRight = { font: "28px Arial Black", fill: "#fff" };
 
     scoreText = this.add.text(10, 10, `Score: 0`, styleLeft);
     bestScoreText = this.add.text(10, 50, `Best: ${localStorage.getItem(`bestScore_${pseudo}`) || 0}`, styleLeft);
     pseudoText = this.add.text(gameWidth - 10, 10, pseudo, styleRight);
-    pseudoText.setOrigin(1, 0); // aligner à droite
+    pseudoText.setOrigin(1, 0);
 
-    // ---------- Bouton Play ----------
+    // Bouton PLAY
     playButton = this.add.text(gameWidth/2, gameHeight/2, "PLAY", {
         font: "36px Arial Black",
         fill: "#fff",
@@ -97,7 +100,7 @@ function create() {
     });
     playButton.setOrigin(0.5);
     playButton.setInteractive();
-    playButton.visible = false; // invisible tant que partie en cours
+    playButton.visible = false;
 
     playButton.on('pointerdown', () => {
         startGame();
@@ -106,26 +109,48 @@ function create() {
     // Collision
     this.physics.add.overlap(player, obstacles, () => {
         if(!gameStarted) return;
+
         gameStarted = false;
+
+        // désactiver collision
+        obstacles.children.iterate(obs => obs.body.enable = false);
 
         // Meilleur score
         const best = localStorage.getItem(`bestScore_${pseudo}`) || 0;
         if(score > best) {
             localStorage.setItem(`bestScore_${pseudo}`, score);
             bestScoreText.setText(`Best: ${score}`);
+
+            // Animation pseudo pulse
+            this.tweens.add({
+                targets: pseudoText,
+                scale: 1.5,
+                yoyo: true,
+                duration: 500,
+                repeat: 3
+            });
         }
 
-        // Afficher bouton Play
+        // Bouton PLAY clignotant
         playButton.visible = true;
+        playButton.alpha = 1;
+        if(playTween) playTween.stop();
+        playTween = this.tweens.add({
+            targets: playButton,
+            alpha: 0.2,
+            yoyo: true,
+            repeat: -1,
+            duration: 500
+        });
 
-        // Déplacer joueur à sa position initiale
+        // Repositionner joueur
         player.setPosition(gameWidth / 2, gameHeight - 100);
 
-        // Supprimer obstacles
-        obstacles.clear(true, true);
+        // Supprimer obstacles après 100ms
+        setTimeout(() => obstacles.clear(true, true), 100);
     });
 
-    // ---------- Redimensionnement dynamique ----------
+    // Redimensionnement dynamique
     window.addEventListener('resize', () => {
         const newWidth = Math.min(window.innerWidth * 0.95, maxWidth);
         const newHeight = Math.min(window.innerHeight * 0.95, maxHeight);
@@ -146,12 +171,16 @@ function startGame() {
     scoreText.setText(`Score: ${score}`);
     gameStarted = true;
     playButton.visible = false;
+    playButton.alpha = 1;
+    if(playTween) {
+        playTween.stop();
+        playTween = null;
+    }
 }
 
 function update() {
     if(!gameStarted) return;
 
-    // Déplacement clavier
     if(cursors.left.isDown) player.x -= 5;
     if(cursors.right.isDown) player.x += 5;
     if(cursors.up.isDown) player.y -= 5;
@@ -160,7 +189,6 @@ function update() {
     player.x = Phaser.Math.Clamp(player.x, player.width/2, gameWidth - player.width/2);
     player.y = Phaser.Math.Clamp(player.y, player.height/2, gameHeight - player.height/2);
 
-    // Supprimer obstacles hors écran
     obstacles.getChildren().forEach(obs => {
         if(obs.y > gameHeight + 50) obs.destroy();
     });
